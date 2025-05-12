@@ -7,6 +7,7 @@ from utils import *
 from model import *
 
 from skimage import measure
+from PIL import Image
 
 
 
@@ -75,7 +76,9 @@ def train():
                 image = np.resize(image[7][56:, :, :], [144, 256, 3])
 
                 imsave('val_%d' % (index+1), image)
-                image = scipy.misc.imread(IMG_DIR+'val_%d.png' % (index+1), mode='RGB').astype('float32')
+                # image = scipy.misc.imread(IMG_DIR+'val_%d.png' % (index+1), mode='RGB').astype('float32')
+                image = np.array(Image.open(os.path.join(IMG_DIR, f'val_{index+1}.png')).convert('RGB')).astype('float32') / 255.0
+
                 psnr = measure.compare_psnr(metrics_image, image, data_range=255)
                 ssim = measure.compare_ssim(metrics_image, image, multichannel=True, data_range=255, win_size=11)
 

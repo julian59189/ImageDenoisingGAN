@@ -2,17 +2,13 @@ import os
 import re
 import sys
 import glob
-import scipy.misc
 from itertools import cycle
 
 import numpy as np
 import tensorflow as tf
-
-
-from libs import vgg16
-
 from PIL import Image
 
+from libs import vgg16
 
 LEARNING_RATE = 0.002
 BATCH_SIZE = 5
@@ -31,7 +27,7 @@ ADVERSARIAL_LOSS_FACTOR = 0.5
 PIXEL_LOSS_FACTOR = 1.0
 STYLE_LOSS_FACTOR = 1.0
 SMOOTH_LOSS_FACTOR = 1.0
-metrics_image = scipy.misc.imread(METRICS_SET_DIR+'gt.png', mode='RGB').astype('float32')
+metrics_image = np.array(Image.open(METRICS_SET_DIR+'gt.png').convert('RGB')).astype('float32')
 
 
 def initialize(sess):
@@ -72,14 +68,14 @@ def load_next_training_batch():
 
 def load_validation():
     filelist = sorted(glob.glob(VALIDATION_SET_DIR + '/*.png'), key=alphanum_key)
-    validation = np.array([np.array(scipy.misc.imread(fname, mode='RGB').astype('float32')) for fname in filelist])
+    validation = np.array([np.array(Image.open(fname).convert('RGB')).astype('float32') for fname in filelist])
     npad = ((0, 0), (56, 56), (0, 0), (0, 0))
     validation = np.pad(validation, pad_width=npad, mode='constant', constant_values=0)
     return validation
 
 def training_dataset_init():
     filelist = sorted(glob.glob(TRAINING_SET_DIR + '/*.png'), key=alphanum_key)
-    batch = np.array([np.array(scipy.misc.imread(fname, mode='RGB').astype('float32')) for fname in filelist])
+    batch = np.array([np.array(Image.open(fname).convert('RGB')).astype('float32') for fname in filelist])
     batch = split(batch, BATCH_SIZE)
     training_dir_list = get_training_dir_list()
     global pool
@@ -88,7 +84,10 @@ def training_dataset_init():
 
 
 def imsave(filename, image):
-    scipy.misc.imsave(IMG_DIR+filename+'.png', image)
+    # Create Images directory if it doesn't exist
+    if not os.path.exists(IMG_DIR):
+        os.makedirs(IMG_DIR)
+    Image.fromarray(np.uint8(image)).save(IMG_DIR+filename+'.png')
 
 def merge_images(file1, file2):
     """Merge two images into one, displayed side by side
