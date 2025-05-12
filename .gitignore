@@ -181,3 +181,4 @@ __pycache__/
 dataset/
 libs/__pycache__/utils.cpython-310.pyc
 libs/__pycache__/vgg16.cpython-310.pyc
+static/output.png 
